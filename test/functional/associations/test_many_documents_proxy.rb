@@ -43,17 +43,34 @@ class ManyDocumentsProxyTest < Test::Unit::TestCase
   end
   
   context "build" do
-    should "assign foreign key" do
-      project = Project.create
-      status = project.statuses.build
-      status.project_id.should == project.id
-    end
+		context "with an owner that's an existing record" do
+			should "assign foreign key" do
+				project = Project.create
+				status = project.statuses.build
+				status.project_id.should == project.id
+			end
+		end
 
     should "allow assigning attributes" do
       project = Project.create
       status = project.statuses.build(:name => 'Foo')
       status.name.should == 'Foo'
     end
+
+		context "with an owner that's a new record" do
+			should "not assign a foreign key BEFORE explicitly saving the owner" do
+				project = Project.new
+				status = project.statuses.build
+				status.project_id.should == nil
+			end
+
+			should "assign a foreign key AFTER saving the owner" do
+				project = Project.new
+				status = project.statuses.build
+				project.save
+				status.project_id.should == project.id
+			end
+		end
   end
   
   context "create" do

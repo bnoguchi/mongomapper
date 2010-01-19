@@ -4,6 +4,18 @@ module MongoMapper
       class ManyDocumentsProxy < Collection
         include ::MongoMapper::Finders
 
+				def initialize(owner, reflection)
+					owner.class.class_eval do
+						after_save :"save_new_many_nonembeddable_#{reflection.name}"
+						private
+						define_method :"save_new_many_nonembeddable_#{reflection.name}" do
+							get_proxy(reflection).assign_foreign_id_and_save_built_docs
+						end
+					end
+
+					super
+				end
+
         def find(*args)
           options = args.extract_options!
           klass.find(*args << scoped_options(options))
@@ -51,9 +63,18 @@ module MongoMapper
 
         def build(attrs={})
           doc = klass.new(attrs)
-          apply_scope(doc)
-          doc
+					if owner.new?
+						(@docs_to_add_foreign_id_to_later ||= []) << doc
+					else
+						apply_scope(doc)
+					end
+					doc
         end
+				def assign_foreign_id_and_save_built_docs
+					(@docs_to_add_foreign_id_to_later || []).each do |doc|
+						apply_scope(doc).save if doc.new? && doc[foreign_key].nil?
+					end
+				end
 
         def create(attrs={})
           doc = klass.new(attrs)

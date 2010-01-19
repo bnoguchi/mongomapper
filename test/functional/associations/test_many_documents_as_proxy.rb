@@ -45,11 +45,28 @@ class ManyDocumentsAsProxyTest < Test::Unit::TestCase
   end
 
   context "build" do
-    should "assign foreign key" do
-      post = Post.new
-      comment = post.comments.build
-      comment.commentable_id.should == post._id
-    end
+		context "with an owner that's an existing record" do
+			should "assign foreign key" do
+				post = Post.create
+				comment = post.comments.build
+				comment.commentable_id.should == post._id
+			end
+		end
+
+		context "with an owner that's a new record" do
+			should "not assign a foreign key BEFORE explicitly saving the owner" do
+				post = Post.new
+				comment = post.comments.build
+				comment.commentable_id.should == nil
+			end
+
+			should "assign a foreign key AFTER saving the owner" do
+				post = Post.new
+				comment = post.comments.build
+				post.save
+				comment.commentable_id.should == post._id
+			end
+		end
 
     should "assign _type" do
       post = Post.new
