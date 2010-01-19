@@ -54,6 +54,12 @@ class ManyDocumentsProxyTest < Test::Unit::TestCase
       status = project.statuses.build(:name => 'Foo')
       status.name.should == 'Foo'
     end
+
+		should "give owner access to the association collection that includes the newly built doc" do
+			project = Project.new
+			status = project.statuses.build
+			project.statuses.should == [status]
+		end
   end
   
   context "create" do
@@ -75,6 +81,12 @@ class ManyDocumentsProxyTest < Test::Unit::TestCase
       status = project.statuses.create(:name => 'Foo!')
       status.name.should == 'Foo!'
     end
+
+		should "give owner access to the association collection that includes the newly built doc" do
+			project = Project.new
+			status = project.statuses.create(:name => 'Foo!')
+			project.statuses.should == [status]
+		end
   end
   
   context "create!" do
@@ -97,12 +109,20 @@ class ManyDocumentsProxyTest < Test::Unit::TestCase
       status.name.should == 'Foo!'
     end
     
-    should "raise exception if not valid" do
-      project = Project.create
-      lambda {
-        project.statuses.create!(:name => nil)
-      }.should raise_error(MongoMapper::DocumentNotValid)
-    end
+		should "give owner access to the association collection that includes the newly built doc" do
+			project = Project.new
+			status = project.statuses.create!(:name => 'Foo!')
+			project.statuses.should == [status]
+		end
+
+		context "when invalid" do
+			should "raise exception" do
+				project = Project.create
+				lambda {
+					project.statuses.create!(:name => nil)
+				}.should raise_error(MongoMapper::DocumentNotValid)
+			end
+		end
   end
   
   context "count" do

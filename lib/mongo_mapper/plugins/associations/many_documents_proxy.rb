@@ -105,6 +105,7 @@ module MongoMapper
           def apply_scope(doc)
             ensure_owner_saved
             doc[foreign_key] = owner.id
+						load_target << doc
             doc
           end
 
