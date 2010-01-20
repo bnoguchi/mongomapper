@@ -102,3 +102,5 @@ require 'mongo_mapper/plugins/associations/many_embedded_polymorphic_proxy'
 require 'mongo_mapper/plugins/associations/many_documents_as_proxy'
 require 'mongo_mapper/plugins/associations/one_proxy'
 require 'mongo_mapper/plugins/associations/in_array_proxy'
+require 'mongo_mapper/plugins/associations/source_array_proxy'
+

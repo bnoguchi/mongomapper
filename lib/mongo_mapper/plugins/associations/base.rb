@@ -5,7 +5,7 @@ module MongoMapper
         attr_reader :type, :name, :options, :finder_options
 
         # Options that should not be considered MongoDB query options/criteria
-        AssociationOptions = [:as, :class, :class_name, :dependent, :extend, :foreign_key, :in, :polymorphic]
+        AssociationOptions = [:as, :class, :class_name, :dependent, :extend, :foreign_key, :in, :source, :polymorphic]
 
         def initialize(type, name, options={}, &extension)
           @type, @name, @options, @finder_options = type, name, {}, {}
@@ -62,6 +62,10 @@ module MongoMapper
           !!@options[:in]
         end
 
+        def source_array?
+          !!@options[:source]
+        end
+
         def embeddable?
           many? && klass.embeddable?
         end
@@ -94,6 +98,8 @@ module MongoMapper
                   ManyDocumentsAsProxy
                 elsif in_array?
                   InArrayProxy
+                elsif source_array?
+                  SourceArrayProxy
                 else
                   ManyDocumentsProxy
                 end

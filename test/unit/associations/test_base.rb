@@ -95,12 +95,22 @@ class AssociationBaseTest < Test::Unit::TestCase
   end
   
   context "in_array?" do
-    should "be true if one" do
+    should "be true if includes :in" do
       Base.new(:one, :foo, :in => :list_ids).in_array?.should be_true
     end
     
-    should "be false if not one" do
+    should "be false if doesn't include :in" do
       Base.new(:many, :foo).in_array?.should be_false
+    end
+  end
+
+  context "source_array?" do
+    should "be true if it specifies a source" do
+      Base.new(:many, :foo, :source => :lists).source_array?.should be_true
+    end
+
+    should "be false if it doesn't specify a source" do
+      Base.new(:many, :foo).source_array?.should be_false
     end
   end
   
@@ -201,6 +211,11 @@ class AssociationBaseTest < Test::Unit::TestCase
     should "be InArrayProxy for many with :in option" do
       base = Base.new(:many, :messages, :in => :message_ids)
       base.proxy_class.should == InArrayProxy
+    end
+
+    should "be SourceArrayProxy for many with :source option" do
+      base = Base.new(:many, :messages, :source => :recipients)
+      base.proxy_class.should == SourceArrayProxy
     end
   end
   
